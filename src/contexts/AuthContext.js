@@ -2,15 +2,15 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import {
-    getAuth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
     sendPasswordResetEmail,
     updateEmail,
-    updatePassword
+    updatePassword,
+    onAuthStateChanged
 } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from '@firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore';
 
 const AuthContext = React.createContext();
 
@@ -48,13 +48,18 @@ export function AuthProvider({ children }) {
     }
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setCurrentUser(user);
             if (user) {
-                const docRef = doc(db, 'users', user.uid);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    setUserData(docSnap.data());
+                try {
+                    const docRef = doc(db, 'users', user.uid);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        setUserData(docSnap.data());
+                    }
+                } catch (error) {
+                    console.error("Error fetching user data:", error);
+                    setUserData(null);
                 }
             } else {
                 setUserData(null);
