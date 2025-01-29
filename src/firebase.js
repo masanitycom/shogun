@@ -4,13 +4,12 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-    // あなたのFirebase設定をここに入れてください
-    apiKey: process.env.AIzaSyBFgdUh5fJvBmqjdwvYOSkc1dj_WfvpKU4,
-    authDomain: process.env.sgoguntradeapp.firebaseapp.com,
-    projectId: process.env.sgoguntradeapp,
-    storageBucket: process.env.sgoguntradeapp.firebasestorage.app,
-    messagingSenderId: process.env.289124213163,
-    appId: process.env.1: 289124213163: web: 76c3b514631e08b1bf32ee
+    apiKey: "AIzaSyD5xKh-YHjt4PmFhlvlDTZzKmCBDM7nHYo",
+    authDomain: "sgoguntradeapp.firebaseapp.com",
+    projectId: "sgoguntradeapp",
+    storageBucket: "sgoguntradeapp.appspot.com",
+    messagingSenderId: "289124213163",
+    appId: "1:289124213163:web:76c3b514631e08b1bf32ee"
 };
 
 const app = initializeApp(firebaseConfig);
