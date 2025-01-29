@@ -1,11 +1,9 @@
 // src/components/Auth/Login.js
-
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth } from '../../firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { auth, db } from '../../firebase';
+import { getFirestore, doc, getDoc } from '@firebase/firestore'
 import {
     Container,
     Paper,
@@ -39,23 +37,7 @@ const Login = () => {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             const userData = userDoc.data();
 
-            // 一般ユーザーページへのアクセスを制限
-            if (userData.role === 'admin' && window.location.pathname === '/login') {
-                setError('管理者アカウントでは一般ユーザーログインできません');
-                await auth.signOut();
-                setLoading(false);
-                return;
-            }
-
-            // 管理者ページへのアクセスを制限
-            if (userData.role !== 'admin' && window.location.pathname === '/admin/login') {
-                setError('管理者権限がありません');
-                await auth.signOut();
-                setLoading(false);
-                return;
-            }
-
-            // 適切なダッシュボードへリダイレクト
+            // ユーザーの権限に基づいてリダイレクト
             if (userData.role === 'admin') {
                 navigate('/admin/dashboard');
             } else {
@@ -107,7 +89,7 @@ const Login = () => {
                         ログイン
                     </Button>
                     <Box sx={{ mt: 2, textAlign: 'center' }}>
-                        <MuiLink component={Link} to="/forgot-password" variant="body2">
+                        <MuiLink component={Link} to="/reset-password" variant="body2">
                             パスワードを忘れた方はこちら
                         </MuiLink>
                     </Box>

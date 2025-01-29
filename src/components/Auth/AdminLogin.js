@@ -1,18 +1,18 @@
 // src/components/Auth/AdminLogin.js
-
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
-import { auth } from '../../firebase';
+import { Link, useNavigate } from 'react-router-dom';
+import { auth, db } from '../../firebase';
+import { getFirestore, doc, getDoc } from '@firebase/firestore'
 import {
     Container,
     Paper,
     TextField,
     Button,
     Typography,
-    Alert
+    Alert,
+    Box,
+    Link as MuiLink
 } from '@mui/material';
 
 const AdminLogin = () => {
@@ -33,10 +33,11 @@ const AdminLogin = () => {
             const userCredential = await login(email, password);
             const user = userCredential.user;
 
-            // Firestoreからユーザーデータを取得して管理者かチェック
+            // Firestoreからユーザーデータを取得
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             const userData = userDoc.data();
 
+            // 管理者権限の確認
             if (userData.role !== 'admin') {
                 setError('管理者権限がありません');
                 await auth.signOut();
@@ -89,6 +90,11 @@ const AdminLogin = () => {
                     >
                         ログイン
                     </Button>
+                    <Box sx={{ mt: 2, textAlign: 'center' }}>
+                        <MuiLink component={Link} to="/login" variant="body2">
+                            一般ユーザーログイン
+                        </MuiLink>
+                    </Box>
                 </form>
             </Paper>
         </Container>
