@@ -1,74 +1,52 @@
-// src/App.js
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import Login from './components/Auth/Login';
-import AdminLogin from './components/Auth/AdminLogin';
-import Register from './components/Auth/Register';
-import Dashboard from './components/Dashboard/Dashboard';
-import AdminDashboard from './components/Dashboard/AdminDashboard';
-import ResetPassword from './components/Auth/ResetPassword';
-import UpdateProfile from './components/Profile/UpdateProfile';
-import RequireAuth from './components/Auth/RequireAuth';
-import Layout from './components/Layout/Layout';
-import CodeReference from './pages/CodeReference';
+import PrivateRoute from './components/PrivateRoute';
+import AdminRoute from './components/AdminRoute';
+import Login from './components/Login';
+import Register from './components/Register';
+import AdminLogin from './components/admin/AdminLogin';
+import AdminDashboard from './components/admin/AdminDashboard';
+import Dashboard from './components/Dashboard';
+import Header from './components/Header';
+import { Container } from '@mui/material';
 
 function App() {
     return (
         <Router>
             <AuthProvider>
-                <Routes>
-                    {/* 認証関連ルート */}
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/admin/login" element={<AdminLogin />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/reset-password" element={<ResetPassword />} />
+                <Header />
+                <Container>
+                    <Routes>
+                        {/* Public Routes */}
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/admin/login" element={<AdminLogin />} />
 
-                    {/* 認証が必要なルート */}
-                    <Route
-                        path="/"
-                        element={
-                            <RequireAuth>
-                                <Layout />
-                            </RequireAuth>
-                        }
-                    >
-                        {/* ダッシュボード */}
+                        {/* Protected Routes */}
                         <Route
                             path="/"
-                            element={<Navigate to="/dashboard" replace />}
-                        />
-                        <Route
-                            path="/dashboard"
-                            element={<Dashboard />}
+                            element={
+                                <PrivateRoute>
+                                    <Dashboard />
+                                </PrivateRoute>
+                            }
                         />
 
-                        {/* プロフィール関連 */}
+                        {/* Admin Routes */}
                         <Route
-                            path="/update-profile"
-                            element={<UpdateProfile />}
+                            path="/admin"
+                            element={
+                                <AdminRoute>
+                                    <AdminDashboard />
+                                </AdminRoute>
+                            }
                         />
-                    </Route>
 
-                    {/* 管理者用ルート */}
-                    <Route
-                        path="/admin/*"
-                        element={
-                            <RequireAuth requiredRole="admin">
-                                <Layout />
-                            </RequireAuth>
-                        }
-                    >
-                        <Route
-                            path="dashboard"
-                            element={<AdminDashboard />}
-                        />
-                    </Route>
-
-                    {/* 開発用ルート */}
-                    <Route path="/code-reference" element={<CodeReference />} />
-                </Routes>
+                        {/* Default Route */}
+                        <Route path="*" element={<Navigate to="/" />} />
+                    </Routes>
+                </Container>
             </AuthProvider>
         </Router>
     );

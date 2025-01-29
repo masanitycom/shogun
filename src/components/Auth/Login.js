@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../../utils/supabaseClient';
+import { useNavigate, Link } from 'react-router-dom';
+import { supabase } from '../utils/supabaseClient';
 import { Button, TextField, Typography, Container, Box, Alert } from '@mui/material';
 
 const Login = () => {
@@ -14,13 +14,13 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { error } = await supabase.auth.signInWithPassword({
                 email: e.target.email.value,
                 password: e.target.password.value,
             });
 
             if (error) throw error;
-            navigate('/dashboard');
+            navigate('/');
         } catch (error) {
             setError('ログインに失敗しました: ' + error.message);
         }
@@ -72,9 +72,14 @@ const Login = () => {
                     >
                         ログイン
                     </Button>
-                    <Link to="/signup">
-                        アカウントをお持ちでない方はこちら
-                    </Link>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Link to="/register">
+                            アカウントをお持ちでない方はこちら
+                        </Link>
+                        <Link to="/admin/login">
+                            管理者ログイン
+                        </Link>
+                    </Box>
                 </Box>
             </Box>
         </Container>
