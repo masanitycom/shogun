@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from "../Layout/Layout';
-import Home from "../Pages/Home';
+import Layout from '../Layout/Layout';  // クォートの修正
+import Home from '../Pages/Home';      // クォートの修正
 
 export default function Dashboard() {
     // ユーザーの認証状態を管理するstate
