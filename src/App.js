@@ -23,7 +23,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/admin/login" element={<AdminLogin />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
 
                     {/* 認証が必要なルート */}
                     <Route
