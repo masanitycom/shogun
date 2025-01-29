@@ -1,13 +1,14 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Typography, Container } from '@mui/material';
 
-export default function AdminDashboard() {
+const AdminDashboard = () => {
     return (
-        <Box sx={{ p: 3 }}>
-            <Typography variant="h4">
+        <Container>
+            <Typography variant="h4" component="h1" gutterBottom>
                 管理者ダッシュボード
             </Typography>
-            {/* ここに管理者ダッシュボードの内容を追加 */}
-        </Box>
+        </Container>
     );
-}
+};
+
+export default AdminDashboard;
