@@ -1,22 +1,9 @@
-// src/components/Auth/Login.js
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth, db } from '../../firebase';
-import { getFirestore, doc, getDoc } from '@firebase/firestore'
-import {
-    Container,
-    Paper,
-    TextField,
-    Button,
-    Typography,
-    Alert,
-    Box,
-    Link as MuiLink
-} from '@mui/material';
+import { supabase } from '../../utils/supabaseClient';
+import { Button, TextField, Typography, Container, Box, Alert } from '@mui/material';
 
 const Login = () => {
-    const { login } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -26,24 +13,14 @@ const Login = () => {
         setError('');
         setLoading(true);
 
-        const email = e.target.email.value;
-        const password = e.target.password.value;
-
         try {
-            const userCredential = await login(email, password);
-            const user = userCredential.user;
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: e.target.email.value,
+                password: e.target.password.value,
+            });
 
-            // Firestoreからユーザーデータを取得
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const userData = userDoc.data();
-
-            // ユーザーの権限に基づいてリダイレクト
-            if (userData.role === 'admin') {
-                navigate('/admin/dashboard');
-            } else {
-                navigate('/dashboard');
-            }
-
+            if (error) throw error;
+            navigate('/dashboard');
         } catch (error) {
             setError('ログインに失敗しました: ' + error.message);
         }
@@ -53,12 +30,19 @@ const Login = () => {
 
     return (
         <Container component="main" maxWidth="xs">
-            <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
-                <Typography component="h1" variant="h5" align="center">
+            <Box
+                sx={{
+                    marginTop: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
+                <Typography component="h1" variant="h5">
                     ログイン
                 </Typography>
-                {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-                <form onSubmit={handleSubmit}>
+                {error && <Alert severity="error">{error}</Alert>}
+                <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
                     <TextField
                         margin="normal"
                         required
@@ -88,24 +72,11 @@ const Login = () => {
                     >
                         ログイン
                     </Button>
-                    <Box sx={{ mt: 2, textAlign: 'center' }}>
-                        <MuiLink component={Link} to="/reset-password" variant="body2">
-                            パスワードを忘れた方はこちら
-                        </MuiLink>
-                    </Box>
-                    <Box sx={{ mt: 2, textAlign: 'center' }}>
-                        アカウントをお持ちでない方は{' '}
-                        <MuiLink component={Link} to="/register" variant="body2">
-                            登録
-                        </MuiLink>
-                    </Box>
-                    <Box sx={{ mt: 2, textAlign: 'center' }}>
-                        <MuiLink component={Link} to="/admin/login" variant="body2">
-                            管理者ログイン
-                        </MuiLink>
-                    </Box>
-                </form>
-            </Paper>
+                    <Link to="/signup">
+                        アカウントをお持ちでない方はこちら
+                    </Link>
+                </Box>
+            </Box>
         </Container>
     );
 };

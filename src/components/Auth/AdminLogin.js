@@ -1,22 +1,9 @@
-// src/components/Auth/AdminLogin.js
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
-import { auth, db } from '../../firebase';
-import { getFirestore, doc, getDoc } from '@firebase/firestore'
-import {
-    Container,
-    Paper,
-    TextField,
-    Button,
-    Typography,
-    Alert,
-    Box,
-    Link as MuiLink
-} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../utils/supabaseClient';
+import { Button, TextField, Typography, Container, Box, Alert, Link } from '@mui/material';
 
 const AdminLogin = () => {
-    const { login } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -26,27 +13,37 @@ const AdminLogin = () => {
         setError('');
         setLoading(true);
 
-        const email = e.target.email.value;
-        const password = e.target.password.value;
-
         try {
-            const userCredential = await login(email, password);
-            const user = userCredential.user;
+            // まずは通常のログイン
+            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                email: e.target.email.value,
+                password: e.target.password.value,
+            });
 
-            // Firestoreからユーザーデータを取得
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const userData = userDoc.data();
+            if (authError) throw authError;
 
-            // 管理者権限の確認
-            if (userData.role !== 'admin') {
-                setError('管理者権限がありません');
-                await auth.signOut();
-                setLoading(false);
-                return;
+            // プロフィールの確認
+            const { data: profiles, error: profileError } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('user_id', authData.user.id);
+
+            if (profileError) throw profileError;
+
+            // 結果の確認
+            if (!profiles || profiles.length === 0) {
+                throw new Error('ユーザープロフィールが見つかりません');
             }
 
+            if (profiles[0].role !== 'admin') {
+                throw new Error('管理者権限がありません');
+            }
+
+            // 管理者確認OK
             navigate('/admin/dashboard');
+
         } catch (error) {
+            console.error('Error details:', error);
             setError('ログインに失敗しました: ' + error.message);
         }
 
@@ -55,12 +52,19 @@ const AdminLogin = () => {
 
     return (
         <Container component="main" maxWidth="xs">
-            <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
-                <Typography component="h1" variant="h5" align="center">
+            <Box
+                sx={{
+                    marginTop: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
+                <Typography component="h1" variant="h5">
                     管理者ログイン
                 </Typography>
-                {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-                <form onSubmit={handleSubmit}>
+                {error && <Alert severity="error">{error}</Alert>}
+                <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
                     <TextField
                         margin="normal"
                         required
@@ -90,13 +94,11 @@ const AdminLogin = () => {
                     >
                         ログイン
                     </Button>
-                    <Box sx={{ mt: 2, textAlign: 'center' }}>
-                        <MuiLink component={Link} to="/login" variant="body2">
-                            一般ユーザーログイン
-                        </MuiLink>
-                    </Box>
-                </form>
-            </Paper>
+                    <Link href="/login" variant="body2">
+                        一般ユーザーログイン
+                    </Link>
+                </Box>
+            </Box>
         </Container>
     );
 };
