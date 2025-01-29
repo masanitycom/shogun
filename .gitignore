@@ -1,5 +1,5 @@
-node_modules/
 .env
 .env.local
-build/
-dist/
+.env.development.local
+.env.test.local
+.env.production.local

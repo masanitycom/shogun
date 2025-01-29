@@ -1,6 +1,6 @@
 // src/utils/githubUtils.js
 
-const GITHUB_TOKEN = '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';
+const GITHUB_TOKEN = process.env.REACT_APP_GITHUB_TOKEN;
 const REPO_OWNER = 'masanitycom';
 const REPO_NAME = 'shogun';
 
