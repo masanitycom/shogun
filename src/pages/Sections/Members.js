@@ -1,5 +1,5 @@
 // src/pages/Dashboard/Sections/Members.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {
     Box,
     Paper,
@@ -23,41 +23,36 @@ const Members = () => {
         indirectReferrals: 0
     });
 
-    // メンバーツリーデータを取得する関数
     const fetchMemberTree = async () => {
         try {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) return;
 
-            // ユーザーの直接の紹介者を取得
-            const { data: directMembers, error: directError } = await supabase
+            const { data: allProfiles, error } = await supabase
                 .from('profiles')
-                .select('*')
-                .eq('referral_id', session.user.id);
+                .select('*');
 
-            if (directError) throw directError;
+            if (error) throw error;
 
-            // ツリー構造を構築
-            const buildTree = async (userId) => {
-                const { data: members, error } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('referral_id', userId);
+            const buildTreeFromData = (userId, profiles) => {
+                const userProfile = profiles.find(p => p.id === userId);
+                if (!userProfile) return null;
 
-                if (error) throw error;
+                const children = profiles
+                    .filter(p => p.referral_id === userId)
+                    .map(child => buildTreeFromData(child.id, profiles))
+                    .filter(Boolean);
 
                 return {
-                    ...(await getUserDetails(userId)),
-                    children: await Promise.all(
-                        members.map(member => buildTree(member.id))
-                    )
+                    ...userProfile,
+                    children
                 };
             };
 
-            const tree = await buildTree(session.user.id);
+            const tree = buildTreeFromData(session.user.id, allProfiles);
             setMemberTree(tree);
 
-            // 統計情報を更新
+            const directMembers = allProfiles.filter(p => p.referral_id === session.user.id);
             setStats({
                 totalMembers: calculateTotalMembers(tree),
                 directReferrals: directMembers.length,
@@ -71,26 +66,13 @@ const Members = () => {
         }
     };
 
-    // ユーザー詳細を取得する補助関数
-    const getUserDetails = async (userId) => {
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
-
-        if (error) throw error;
-        return data;
-    };
-
-    // メンバー総数を計算する補助関数
-    const calculateTotalMembers = (node) => {
+    const calculateTotalMembers = useCallback((node) => {
         if (!node) return 0;
         return 1 + (node.children || []).reduce(
             (sum, child) => sum + calculateTotalMembers(child),
             0
         );
-    };
+    }, []);
 
     useEffect(() => {
         fetchMemberTree();

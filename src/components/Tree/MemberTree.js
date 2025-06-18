@@ -1,12 +1,12 @@
 // src/components/Tree/MemberTree.js
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Box, Typography, Avatar } from '@mui/material';
 import { TreeView, TreeItem } from '@mui/lab';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import PersonIcon from '@mui/icons-material/Person';
 
-const CustomTreeItem = ({ node }) => {
+const CustomTreeItem = React.memo(({ node }) => {
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', p: 0.5 }}>
             <Avatar sx={{ width: 24, height: 24, mr: 1 }}>
@@ -22,10 +22,10 @@ const CustomTreeItem = ({ node }) => {
             </Box>
         </Box>
     );
-};
+});
 
-const MemberTree = ({ data }) => {
-    const renderTree = (node) => (
+const MemberTree = React.memo(({ data }) => {
+    const renderTree = useCallback((node) => (
         <TreeItem
             key={node.id}
             nodeId={node.id}
@@ -35,7 +35,7 @@ const MemberTree = ({ data }) => {
                 ? node.children.map((child) => renderTree(child))
                 : null}
         </TreeItem>
-    );
+    ), []);
 
     return (
         <TreeView
@@ -51,6 +51,6 @@ const MemberTree = ({ data }) => {
             {data && renderTree(data)}
         </TreeView>
     );
-};
+});
 
 export default MemberTree;

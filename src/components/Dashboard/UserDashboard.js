@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
     Box,
     Container,
@@ -97,6 +97,12 @@ function UserDashboard() {
         }
     }
 
+    const handleProfileChange = useCallback((payload) => {
+        if (payload.new.id === userData?.id) {
+            setUserData(payload.new);
+        }
+    }, [userData?.id]);
+
     useEffect(() => {
         getUserData();
 
@@ -108,18 +114,14 @@ function UserDashboard() {
                     schema: 'public',
                     table: 'profiles'
                 },
-                payload => {
-                    if (payload.new.id === userData?.id) {
-                        setUserData(payload.new);
-                    }
-                }
+                handleProfileChange
             )
             .subscribe();
 
         return () => {
             subscription.unsubscribe();
         };
-    }, [userData?.id]);
+    }, [handleProfileChange]);
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>

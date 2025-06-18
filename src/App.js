@@ -3,12 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
-import Login from './components/Login';
-import Register from './components/Register';
-import AdminLogin from './components/admin/AdminLogin';
-import AdminDashboard from './components/admin/AdminDashboard';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
+import AdminLogin from './components/Admin/AdminLogin';
+import AdminDashboard from './components/Admin/AdminDashboard';
 import Dashboard from './components/Dashboard';
-import Header from './components/Header';
+import Header from './components/Layout/Header';
 import { Container } from '@mui/material';
 
 function App() {
